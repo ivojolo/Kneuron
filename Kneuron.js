@@ -1065,6 +1065,30 @@ function addTablesFilter() {
 
         return matchFound;
     }
+
+    //Self-heal after a nav rebuild (e.g. an Alt+E view switch performed while
+    //the tables filter was active). fixScrollerPool() leaves a
+    //'min-height: auto !important' override on the scroller wrapper that is only
+    //valid in dense mode, where items stack naturally. When the rebuild drops
+    //dense mode, items are positioned via translateY again and contribute no
+    //height, so that override collapses the wrapper to 0 and the whole Tables
+    //list disappears. Clear it (and any leftover filter pinning) when not dense
+    //so the native scroller's inline min-height takes effect. Mirrors the
+    //cleanup in applyVerticalDensity() and the filter input handler.
+    function restoreNativeScroller() {
+        const nav = document.querySelector('#objects-nav');
+        if (!nav || nav.classList.contains('kneuron-dense')) return;
+        const fixStyle = document.getElementById('kneuron-scroller-fix');
+        if (fixStyle) fixStyle.textContent = '';
+        const scroller = nav.querySelector('.vue-recycle-scroller');
+        if (scroller) {
+            scroller.style.height = 'unset';
+            scroller.style.overflow = 'unset';
+            scroller.classList.remove('kneuron-filtering');
+        }
+    }
+    restoreNativeScroller();
+    setTimeout(restoreNativeScroller, 300);
 }
 
 function addMoveCopyViewFilter() {
