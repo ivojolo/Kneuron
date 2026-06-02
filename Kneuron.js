@@ -654,6 +654,16 @@ document.addEventListener('keydown', async function (event) {
                 }, 0);
             }
         } else if (['KeyW', 'KeyE', 'KeyR'].includes(keyPressed)) {
+            //Switching view type (Fields/Records/Tasks) rebuilds the left nav. A
+            //leftover active tables filter survives that rebuild inconsistently —
+            //sometimes blanking the list, sometimes leaving a single match
+            //floating mid-list. Clear the filter first (synchronously, before the
+            //tab is clicked) so the switch always lands on the full table list.
+            const tablesFilter = document.querySelector('#incremental-filter-tables');
+            if (tablesFilter && tablesFilter.value) {
+                tablesFilter.value = '';
+                tablesFilter.dispatchEvent(new Event('input', { bubbles: true }));
+            }
             const tabLinks = document.querySelectorAll('.tabLink');
             let tabIndex = ['KeyW', 'KeyE', 'KeyR'].indexOf(keyPressed);
             if (tabLinks[tabIndex]) {
