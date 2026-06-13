@@ -815,7 +815,13 @@ function addTablesFilter() {
     const objectsNav = document.querySelector('#objects-nav');
     if (objectsNav) {
         const density = getSettings().verticalDensity || 'normal';
-        const needsDense = density !== 'normal' || tableSortingEnabled;
+        //Keep dense mode on while a filter is active (non-empty input). Otherwise a
+        //nav mutation that re-runs this (e.g. opening an object's dropdown) would
+        //strip kneuron-dense, dropping the 'transform: none' override so the matched
+        //item snaps back to its native translateY while everything else stays hidden.
+        const filterInput = document.querySelector('#incremental-filter-tables');
+        const filterActive = !!(filterInput && filterInput.value.trim() !== '');
+        const needsDense = density !== 'normal' || tableSortingEnabled || filterActive;
         objectsNav.classList.toggle('kneuron-dense', needsDense);
         if (needsDense && !document.querySelector('#incremental-filter-tables')) {
             fixScrollerPool(true);
